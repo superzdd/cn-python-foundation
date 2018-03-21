@@ -39,3 +39,74 @@ with open('calls.csv', 'r') as f:
 to other fixed lines in Bangalore."
 注意：百分比应包含2位小数。
 """
+
+def get_header(phone):
+    header = ''
+    if phone.startswith('(') and phone.count(')') == 1:
+        header = phone[:phone.index(')')+1]
+        # print('{} 是 固话，前缀是: {}'.format(phone,header))
+    elif phone.count(' ') == 1 and (phone[0] == '7' or phone[0] == '8' or phone[0] == '9'):
+        header = phone[:4]
+        # print('{} 是 手机，前缀是: {}'.format(phone,header))
+    elif phone.count(' ') == 0 and phone.count('(') == 0 and phone.count(')') == 0 and phone[:3] == '140':
+        header = phone[:4]
+        # print('{} 是 促销员电话，前缀是: {}'.format(phone,header))
+    else:
+        print('{} 是 异常号码，无法获取前缀'.format(phone))
+
+    return header
+
+def is_bangalore(phone):
+    return phone.startswith('(080)')
+
+def find_all_headers_bangalore():
+    set_all_header = set()
+    for call in calls:
+        if is_bangalore(call[0]) == False: 
+            continue
+        
+        header = get_header(call[1])
+        if header != '':
+            set_all_header.add(header)
+    
+    return set_all_header
+
+def sort_header_list(set_headers):
+    l = []
+    for header in set_headers:
+        l.append(header)
+    
+    l.sort()
+    return l
+
+def print_all_sorted_bangalore_phones():
+    set_headers = find_all_headers_bangalore()
+    sorted_headers = sort_header_list(set_headers)
+
+    ret_txt = ''
+    for header in sorted_headers:
+        ret_txt = ret_txt + '\n' + header
+    
+    print('The numbers called by people in Bangalore have codes:{}'.format(ret_txt))
+
+def print_percent_bangalore_to_bangalore():
+    from_count = 0
+    to_count = 0
+    for call in calls:
+        if is_bangalore(call[0]):
+            from_count += 1
+            if is_bangalore(call[1]):
+                to_count += 1
+    
+    percent = round(float(to_count / from_count * 100),2)
+    print('{} percent of calls from fixed lines in Bangalore are callsto other fixed lines in Bangalore.'.format(percent))
+        
+# get_header('1408409918')
+# get_header('(080)49328664')
+# get_header('78132 18081')
+# get_header('(022)38214945')
+# sorted_header_list = sort_header_list(find_all_headers_080())
+# print(sorted_header_list)
+
+print_all_sorted_bangalore_phones()
+print_percent_bangalore_to_bangalore()
